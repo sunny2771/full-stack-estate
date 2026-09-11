@@ -1,0 +1,8 @@
+{
+  "name": "full-stack-estate",
+  "private": true,
+  "description": "Real estate app based on the Lama Dev full-stack estate tutorial",
+  "engines": {
+    "node": "20.x"
+  }
+}

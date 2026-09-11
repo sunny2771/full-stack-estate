@@ -65,10 +65,13 @@ export const login = async (req, res) => {
 
     const { password: userPassword, ...userInfo } = user;
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res
       .cookie("token", token, {
         httpOnly: true,
-        // secure:true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         maxAge: age,
       })
       .status(200)
@@ -80,5 +83,13 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token").status(200).json({ message: "Logout Successful" });
+  const isProd = process.env.NODE_ENV === "production";
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+    })
+    .status(200)
+    .json({ message: "Logout Successful" });
 };

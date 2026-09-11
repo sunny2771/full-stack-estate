@@ -9,7 +9,14 @@ export const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    setSocket(io("http://localhost:4000"));
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const derivedFromApi = apiUrl ? apiUrl.replace(/\/api\/?$/, "") : "";
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL ||
+      (import.meta.env.DEV
+        ? "http://localhost:4000"
+        : derivedFromApi || window.location.origin);
+    setSocket(io(socketUrl, { withCredentials: true }));
   }, []);
 
   useEffect(() => {

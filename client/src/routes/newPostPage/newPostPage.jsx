@@ -164,8 +164,8 @@ function NewPostPage() {
         <UploadWidget
           uwConfig={{
             multiple: true,
-            cloudName: "lamadev",
-            uploadPreset: "estate",
+            cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "lamadev",
+            uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "estate",
             folder: "posts",
           }}
           setState={setImages}
