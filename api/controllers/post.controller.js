@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
+import { coordsForCity, withMapCoords } from "../lib/geo.js";
 
 export const getPosts = async (req, res) => {
   const query = req.query;
@@ -18,9 +19,7 @@ export const getPosts = async (req, res) => {
       },
     });
 
-    // setTimeout(() => {
-    res.status(200).json(posts);
-    // }, 3000);
+    res.status(200).json(posts.map((post, index) => withMapCoords(post, index)));
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to get posts" });
@@ -56,11 +55,11 @@ export const getPost = async (req, res) => {
               },
             },
           });
-          res.status(200).json({ ...post, isSaved: saved ? true : false });
+          res.status(200).json({ ...withMapCoords(post), isSaved: saved ? true : false });
         }
       });
     }
-    res.status(200).json({ ...post, isSaved: false });
+    res.status(200).json({ ...withMapCoords(post), isSaved: false });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to get post" });
@@ -72,9 +71,16 @@ export const addPost = async (req, res) => {
   const tokenUserId = req.userId;
 
   try {
+    const postData = { ...body.postData };
+    if (!postData.latitude || !postData.longitude) {
+      const [lat, lng] = coordsForCity(postData.city);
+      postData.latitude = String(lat);
+      postData.longitude = String(lng);
+    }
+
     const newPost = await prisma.post.create({
       data: {
-        ...body.postData,
+        ...postData,
         userId: tokenUserId,
         postDetail: {
           create: body.postDetail,
